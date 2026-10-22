@@ -22,16 +22,12 @@
 *.dylib
 *.dll
 *.so.*
-
-# Fortran module files
-*.mod
-*.smod
+*.lib
 
 # Compiled Static libraries
 *.lai
 *.la
 *.a
-*.lib
 
 # Executables
 *.exe
@@ -60,9 +56,18 @@ compile_commands.json
 # vcpkg
 vcpkg_installed/
 
-# debug information files
+# Debug information files
 *.dwo
 
-# test output & cache
+# Test output & cache
 Testing/
 .cache/
+__pycache__/
+*.py[cod]
+
+# Private binaries and analysis work
+.work/
+analysis/
+*.i64
+*.idb
+*.Ghidra/

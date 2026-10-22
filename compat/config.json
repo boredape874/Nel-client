@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "project_kind": "mcbe_native_client",
+  "mode": "report",
+  "channel": "stable",
+  "platform": "windows",
+  "architecture": "x64",
+  "input_provider": "manual_local",
+  "analysis_mode": "signatures_only",
+  "reference_bds": false,
+  "ai_enabled": false,
+  "auto_merge": false,
+  "auto_release": false,
+  "runtime": {
+    "mode": "disabled",
+    "require_approval": true
+  },
+  "limits": {
+    "max_binary_bytes": 2147483648
+  }
+}
