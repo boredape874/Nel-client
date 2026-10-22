@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "ghidriff_image": "nel-ghidriff:compat-v1",
+  "deep_timeout_seconds": 6000,
+  "mode_policy": "report-only; no AI, source edits, game execution or releases",
+  "image_reference": "analysis/ghidriff.Dockerfile (Ghidra base pinned by OCI digest; ghidriff Python package pinned)",
+  "image_checked_date": "2026-10-22",
+  "image_version": "Ghidra 12.0.4 + ghidriff 1.0.0"
+}

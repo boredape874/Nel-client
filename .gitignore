@@ -67,7 +67,7 @@ __pycache__/
 
 # Private binaries and analysis work
 .work/
-analysis/
+analysis/work/
 *.i64
 *.idb
 *.Ghidra/
