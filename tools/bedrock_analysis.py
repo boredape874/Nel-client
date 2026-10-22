@@ -284,7 +284,7 @@ def deep_diff(work: Path, old: Path, new: Path, settings: dict) -> dict:
     with log.open('wb') as stream:
         pulled = subprocess.run(['docker', 'pull', image], stdout=stream, stderr=subprocess.STDOUT, timeout=600)
         require(pulled.returncode == 0, 'Analysis image could not be pulled')
-        command = ['docker', 'run', '--rm', '--name', name, '--network=none', '--cap-drop=ALL',
+        command = ['docker', 'run', '--rm', '--name', name, '--network=none', '--user', f'{os.getuid()}:{os.getgid()}', '--cap-drop=ALL',
                    '--security-opt=no-new-privileges', '--pids-limit=512', f'--memory={memory}g',
                    f'--memory-swap={memory}g', '--cpus=2', '-v', f'{old.parent}:/inputs:ro',
                    '-v', f'{output}:/output:rw', image, f'/inputs/{old.name}', f'/inputs/{new.name}',
