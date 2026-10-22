@@ -1,0 +1,17 @@
+{
+  "role": "client",
+  "platform": "windows-x64",
+  "channel": "release",
+  "old": {
+    "version": "0.0.0.0",
+    "url": "https://YOUR-PRIVATE-HOST/old.exe?YOUR-SIGNED-QUERY",
+    "download_sha256": "REPLACE_WITH_THE_64_HEX_SHA256_OF_THE_DOWNLOADED_FILE",
+    "format": "raw"
+  },
+  "new": {
+    "version": "0.0.0.1",
+    "url": "https://YOUR-PRIVATE-HOST/new.exe?YOUR-SIGNED-QUERY",
+    "download_sha256": "REPLACE_WITH_THE_64_HEX_SHA256_OF_THE_DOWNLOADED_FILE",
+    "format": "raw"
+  }
+}

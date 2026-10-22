@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "role": "client",
+  "platform": "windows",
+  "targets": [],
+  "note": "Add actual active signatures from the client project. Do not substitute BDS signatures or offsets. Empty means zero coverage."
+}
