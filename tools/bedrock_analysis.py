@@ -291,7 +291,7 @@ def deep_diff(work: Path, old: Path, new: Path, settings: dict) -> dict:
                    '--output-path', '/output/results', '--project-location', '/output/projects',
                    '--symbols-path', '/output/symbols', '--gzfs-path', '/output/gzfs',
                    '--log-path', '/output/engine.log', '--no-symbols', '--no-threaded',
-                   f'--jvm-args=-Xmx{max(1, memory-1)}G', '--decompiler-timeout', '30']
+                   f'--jvm-args=-Xmx{max(1, memory-1)}G']
         try:
             finished = subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT,
                                       timeout=settings['deep_timeout_seconds'])
