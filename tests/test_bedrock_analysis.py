@@ -13,11 +13,11 @@ a = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(a)
 
 
-def pe(code=b'\x48\x89\x01\x90\xc3'):
+def pe(code=b'\\x48\\x89\\x01\\x90\\xc3'):
     data = bytearray(1024)
     data[:2] = b'MZ'
     struct.pack_into('<I', data, 0x3c, 0x80)
-    data[0x80:0x84] = b'PE\0\0'
+    data[0x80:0x84] = b'PE\\0\\0'
     struct.pack_into('<HH', data, 0x84, 0x8664, 1)
     struct.pack_into('<H', data, 0x94, 240)
     struct.pack_into('<H', data, 0x98, 0x20b)
@@ -30,7 +30,7 @@ def pe(code=b'\x48\x89\x01\x90\xc3'):
 
 def elf():
     data = bytearray(1024)
-    data[:6] = b'\x7fELF\x02\x01'
+    data[:6] = b'\\x7fELF\\x02\\x01'
     struct.pack_into('<H', data, 18, 62)
     struct.pack_into('<Q', data, 32, 64)
     struct.pack_into('<HH', data, 54, 56, 1)
@@ -53,7 +53,7 @@ class Tests(unittest.TestCase):
         self.assertNotIn('rva', regions[0])
 
     def test_malformed_headers(self):
-        for data in (b'MZ', b'not a binary', b'\x7fELF\x02\x01', bytes(512)):
+        for data in (b'MZ', b'not a binary', b'\\x7fELF\\x02\\x01', bytes(512)):
             with self.subTest(data=data[:8]), self.assertRaises(a.Blocked):
                 a.executable_regions(data)
 
@@ -76,27 +76,27 @@ class Tests(unittest.TestCase):
             return a.scan(path, [{'id': 'fixture', 'pattern': pattern}])['signatures'][0]
 
     def test_unique_signature(self):
-        result = self.scan(b'\x48\x89\x01\x90\xc3', '48 89 ?? 90')
+        result = self.scan(b'\\x48\\x89\\x01\\x90\\xc3', '48 89 ?? 90')
         self.assertEqual(result['status'], 'UNIQUE_CANDIDATE')
         self.assertEqual(result['matches'][0]['rva'], 0x1000)
 
     def test_missing_signature(self):
-        self.assertEqual(self.scan(b'\xc3', '48 89 ?? 90')['status'], 'MISSING')
+        self.assertEqual(self.scan(b'\\xc3', '48 89 ?? 90')['status'], 'MISSING')
 
     def test_overlapping_signature(self):
-        result = self.scan(b'\xaa' * 5, 'AA AA AA AA')
+        result = self.scan(b'\\xaa' * 5, 'AA AA AA AA')
         self.assertEqual(len(result['matches']), 2)
         self.assertEqual(result['status'], 'AMBIGUOUS')
 
     def test_saturated_signature(self):
-        result = self.scan(b'\xaa' * 100, 'AA AA AA AA')
+        result = self.scan(b'\\xaa' * 100, 'AA AA AA AA')
         self.assertTrue(result['count_is_lower_bound'])
         self.assertEqual(len(result['matches']), 16)
 
     def test_invalid_patterns(self):
         for pattern in ('?? ?? ?? ??', 'GG 00 11 22', '90', 'A? 00 11 22'):
             with self.subTest(pattern=pattern), self.assertRaises(a.Blocked):
-                self.scan(b'\xc3', pattern)
+                self.scan(b'\\xc3', pattern)
 
     def test_zip_exact_member_only(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -140,7 +140,10 @@ class Tests(unittest.TestCase):
 
     def test_toolchain_is_pinned(self):
         settings = json.loads((ROOT / 'analysis/settings.json').read_text())
-        self.assertRegex(settings['ghidriff_image'], r'@sha256:[0-9a-f]{64}$')
+        dockerfile = (ROOT / 'analysis/ghidriff.Dockerfile').read_text()
+        self.assertEqual(settings['ghidriff_image'], 'nel-ghidriff:compat-v1')
+        self.assertRegex(dockerfile, r'FROM [^\\n]+@sha256:[0-9a-f]{64}')
+        self.assertIn('ghidriff==1.0.0', dockerfile)
         self.assertLess(settings['deep_timeout_seconds'], 7200)
 
 
