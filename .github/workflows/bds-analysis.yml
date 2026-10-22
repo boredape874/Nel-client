@@ -1,0 +1,79 @@
+name: BDS binary analysis
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'detect: metadata / triage: hashes and signatures / deep: Ghidra function diff'
+        type: choice
+        options: [detect, triage, deep]
+        default: detect
+      old_version:
+        description: 'Known baseline version; required for triage/deep'
+        type: string
+        default: ''
+      new_version:
+        description: 'Target BDS version or latest'
+        type: string
+        default: latest
+      platform:
+        description: 'BDS binary platform'
+        type: choice
+        options: [windows, linux]
+        default: windows
+      channel:
+        description: 'Official release channel'
+        type: choice
+        options: [release, preview]
+        default: release
+  schedule:
+    - cron: '17 4 * * *'
+  push:
+    branches: [main]
+    paths: ['.github/workflows/bds-analysis.yml', 'analysis/**', 'tools/bedrock_analysis.py']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: bds-analysis-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  analyze:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 130
+    env:
+      MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || github.event_name == 'schedule' && vars.BDS_AUTO_MODE || 'detect' }}
+      OLD_VERSION: ${{ inputs.old_version || vars.BDS_BASELINE_VERSION }}
+      NEW_VERSION: ${{ inputs.new_version || 'latest' }}
+      PLATFORM: ${{ inputs.platform || vars.BDS_PLATFORM || 'windows' }}
+      CHANNEL: ${{ inputs.channel || vars.BDS_CHANNEL || 'release' }}
+      REPORT_AGE_RECIPIENT: ${{ vars.REPORT_AGE_RECIPIENT }}
+      REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
+    steps:
+      - name: Initialize ephemeral work path
+        run: echo "WORK=$RUNNER_TEMP/nel-bds-analysis" >> "$GITHUB_ENV"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install optional report encryption
+        if: env.MODE == 'deep' && env.REPORT_AGE_RECIPIENT != ''
+        timeout-minutes: 5
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends age
+      - name: Discover or compare BDS
+        id: analysis
+        env:
+          GH_READ_TOKEN: ${{ github.token }}
+        run: >-
+          python3 tools/bedrock_analysis.py bds --mode "$MODE"
+          --old-version "$OLD_VERSION" --new-version "$NEW_VERSION"
+          --platform "$PLATFORM" --channel "$CHANNEL" --work "$WORK"
+      - name: Upload reports only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ steps.analysis.outputs.artifact_name || format('bds-incomplete-{0}', github.run_id) }}
+          path: ${{ runner.temp }}/nel-bds-analysis/publish/
+          retention-days: 30
+          if-no-files-found: ignore
+      - name: Remove ephemeral binaries and databases
+        if: always()
+        run: rm -rf -- "$WORK"

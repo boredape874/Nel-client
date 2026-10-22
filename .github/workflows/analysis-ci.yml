@@ -1,0 +1,36 @@
+name: Analysis automation CI
+on:
+  workflow_dispatch:
+  push:
+    paths: ['tools/**', 'tests/**', 'analysis/**', '.github/workflows/**']
+  pull_request:
+    paths: ['tools/**', 'tests/**', 'analysis/**', '.github/workflows/**']
+permissions:
+  contents: read
+concurrency:
+  group: analysis-ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Python syntax and offline tests
+        run: |
+          python3 -m compileall -q tools tests
+          python3 -m unittest discover -s tests -v
+      - name: Workflow syntax
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 -color
+  ghidriff-smoke:
+    needs: checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Real Ghidra engine with original C fixtures
+        run: python3 tools/smoke_ghidriff.py

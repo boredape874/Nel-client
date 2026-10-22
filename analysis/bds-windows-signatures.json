@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "role": "bds",
+  "platform": "windows",
+  "targets": [],
+  "note": "Empty means zero signature coverage, NOT compatibility verified. Add only verified Windows BDS targets."
+}
