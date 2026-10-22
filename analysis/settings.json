@@ -1,8 +1,9 @@
 {
   "schema": 1,
-  "ghidriff_image": "ghcr.io/clearbluejar/ghidriff@sha256:8a5f08228eafca27af0011a246125f40618f778a2a42acb2c9dd567b916ff916",
+  "ghidriff_image": "ghcr.io/clearbluejar/ghidriff@sha256:cb4ab2291f273a84492cdb104ef3c67109b1f757e6cb8d6613acb0a3aa5d91fb",
   "deep_timeout_seconds": 6000,
   "mode_policy": "report-only; no AI, source edits, game execution or releases",
   "image_reference": "https://github.com/clearbluejar/ghidriff/pkgs/container/ghidriff",
-  "image_checked_date": "2026-10-22"
+  "image_checked_date": "2026-10-22",
+  "image_version": "0.9.0"
 }
