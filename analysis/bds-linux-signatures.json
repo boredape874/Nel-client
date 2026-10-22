@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "role": "bds",
+  "platform": "linux",
+  "targets": [],
+  "note": "Empty means zero signature coverage, NOT compatibility verified. Linux BDS addresses are not client addresses."
+}
